@@ -22,3 +22,7 @@
 10. UI additions
 
 11. better organization for .pkl and .index
+
+12. option for user to upload files
+
+13. option to use multiple files for output
