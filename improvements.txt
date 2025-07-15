@@ -1,0 +1,24 @@
+1. better cleaning of text
+    - removal of stop words
+    - removal of redundant info (header / footer on every page)
+
+2. better chunking
+
+3. better pdf reading (?)
+
+4. different types of text splitter in llama index (which one is better?)
+    llama-index-core/llama_index/core/node_parser/text/
+
+5. rolling custom chunker (nltk, sentence aware)
+
+6. better embeddings / transformers (?)
+
+7. better ways to calculate similarity rather than L2 (euclidean distance) (?)
+
+8. better error handling
+
+9. better prompts (COMPLETED)
+
+10. UI additions
+
+11. better organization for .pkl and .index
