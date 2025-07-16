@@ -21,17 +21,23 @@ def create_faiss_index(embeddings):
     index.add(embeddings)
     return index
 
-def save_index(index, path="faiss.index"):
-    faiss.write_index(index, path)
+# directory for cached files (faiss.index & chunks.pkl)
+dir = config.CACHED_DIR
 
+def save_index(index, path="faiss.index"):
+    full_path = os.path.join(dir, path)
+    faiss.write_index(index, full_path)
 
 def load_index(path="faiss.index"):
-    return faiss.read_index(path)
+    full_path = os.path.join(dir, path)
+    return faiss.read_index(full_path)
 
 def save_chunks(chunks, path="chunks.pkl"):
-    with open(path, "wb") as f:
+    full_path = os.path.join(dir, path)
+    with open(full_path, "wb") as f:
         pickle.dump(chunks, f)
 
 def load_chunks(path="chunks.pkl"):
-    with open(path, "rb") as f:
+    full_path = os.path.join(dir, path)
+    with open(full_path, "rb") as f:
         return pickle.load(f)

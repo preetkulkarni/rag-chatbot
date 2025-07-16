@@ -1,13 +1,16 @@
 from modules.loader import extract_text_from_pdf
 from modules.chunker import split_text_into_chunks
-from modules.embedder import embed_chunks, create_faiss_index, save_index, save_chunks, load_chunks
+from modules.embedder import embed_chunks, create_faiss_index, save_index, save_chunks
 from modules.retriever import retrieve_top_k_chunks
 from modules.llm_interface import query_llm_with_context
 
 import os
 
+CACHE_DIR = "cached_files"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
 def build_index_if_needed():
-    if os.path.exists("faiss.index") and os.path.exists("chunks.pkl"):
+    if os.path.exists("cached_files/faiss.index") and os.path.exists("cached_files/chunks.pkl"):
         print("✅ FAISS index and chunks already exist.")
         return
 
