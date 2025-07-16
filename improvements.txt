@@ -1,5 +1,5 @@
 1. better cleaning of text
-    - removal of stop words
+    - removal of stop words (necessary?)
     - removal of redundant info (header / footer on every page)
 
 2. better chunking
@@ -17,11 +17,11 @@
 
 8. better error handling
 
-9. better prompts (COMPLETED)
+9. better prompts
 
 10. UI additions
 
-11. better organization for .pkl and .index
+11. better organization for .pkl and .index (COMPLETED)
 
 12. option for user to upload files
 
