@@ -3,3 +3,4 @@
 cached_files/
 testing/
 run_tests.py
+.vscode
