@@ -1,39 +1,55 @@
 import os
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.schema import TextNode
-from typing import List
-from modules import config
+from typing import List, Dict, Any
+from . import config
 
-# v1 functions: split_text_into_chunks(text) 
+def get_text_nodes(processed_data: Dict[str, Any], file_name: str) -> List[TextNode]:
 
-def get_text_nodes(text: str, file_name: str) -> List[TextNode]:
-    # splits long text into smaller TextNode objects
+    doc_context = processed_data.get("doc_context", "")
+    pages = processed_data.get("pages", [])
 
-    if not text.strip():
-        print("⚠️ Warning: Input text is empty. Returning no nodes.")
+    if not pages and not doc_context:
+        print("⚠️ Warning: No text to chunk. Returning empty list.")
         return []
     
-    print(f"Chunking text from '{file_name}'...")
-
     splitter = SentenceSplitter(
-        chunk_size = config.CHUNK_SIZE,
-        chunk_overlap = config.CHUNK_OVERLAP,
+        chunk_size=config.CHUNK_SIZE,
+        chunk_overlap=config.CHUNK_OVERLAP,
     )
 
-    string_chunks = splitter.split_text(text)
-
     nodes = []
-    nodes = []
-    for i, chunk_text in enumerate(string_chunks):
-        node = TextNode(
-            text=chunk_text,
-            metadata={
-                "file_name": os.path.basename(file_name), 
-                "chunk_number": i + 1,
-                # more metadata to be added here
-            }
-        )
-        nodes.append(node)
     
-    print(f"✅ Successfully created {len(nodes)} text nodes.")
+    if doc_context.strip():
+        context_chunks = splitter.split_text(doc_context)
+        for i, chunk_text in enumerate(context_chunks):
+            node = TextNode(
+                text=chunk_text,
+                metadata={
+                    "file_name": os.path.basename(file_name),
+                    "page_number": "Document Header", 
+                    "chunk_number": i + 1
+                }
+            )
+            nodes.append(node)
+
+    for page in pages:
+        page_num = page.get("page_number")
+        page_text = page.get("text", "")
+        
+        if not page_text.strip():
+            continue
+            
+        page_chunks = splitter.split_text(page_text)
+        for i, chunk_text in enumerate(page_chunks):
+            node = TextNode(
+                text=chunk_text,
+                metadata={
+                    "file_name": os.path.basename(file_name),
+                    "page_number": page_num,
+                    "chunk_number": i + 1
+                }
+            )
+            nodes.append(node)
+    
     return nodes

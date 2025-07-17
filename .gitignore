@@ -4,3 +4,5 @@ cached_files/
 testing/
 run_tests.py
 .vscode
+verification_outputs/
+verify_clean.py

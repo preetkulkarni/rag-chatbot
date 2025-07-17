@@ -1,36 +1,34 @@
 from modules.loader import extract_and_clean_pdf
 from modules.chunker import get_text_nodes
 from modules.embedder import embed_chunks, create_faiss_index
-from modules.retriever import retrieve_top_k_chunks
+from modules.retriever import retrieve_top_k_chunks 
 from modules.llm_interface import query_llm_with_context
 from modules.persistence import save_data, cache_exists
 from modules import config
 
 def build_index():
-    """Builds and saves the index and structured TextNodes from the source PDF."""
     print("\n🔄 Building index from PDF...")
 
-    text = extract_and_clean_pdf(config.PDF_PATH)
-    if not text:
+    processed_data = extract_and_clean_pdf(config.PDF_PATH)
+    if not processed_data or not processed_data.get("pages"):
         print("❌ Failed to extract text. Aborting index build.")
         return
 
-    nodes = get_text_nodes(text, config.PDF_PATH)
+    nodes = get_text_nodes(processed_data, config.PDF_PATH)
     if not nodes:
         print("❌ Failed to create text nodes. Aborting index build.")
         return
 
     embeddings = embed_chunks(nodes)
-
     index = create_faiss_index(embeddings)
+    
     save_data("faiss.index", index, serializer='faiss')
-
     save_data("chunks.pkl", nodes, serializer='pickle')
 
-    print("✅ Index and text nodes saved.\n")
+    print("✅ Index and text nodes saved with page metadata.\n")
 
 def main():
-    print("\n=== RAG Chatbot for Policy Documents (v2.1) ===\n")
+    print("\n=== RAG Chatbot for Policy Documents (v4) ===\n")
     print("> type 'exit' to quit")
     print("> type 'rebuild' to rebuild index and chunks\n")
     print("Current status: ")
@@ -52,13 +50,21 @@ def main():
 
         try:
             top_nodes = retrieve_top_k_chunks(user_query)
-            if top_nodes is None:
+            if not top_nodes:
                 print("Could not retrieve context. Please try rebuilding the index.")
                 continue
-            
+
             answer = query_llm_with_context(user_query, top_nodes)
+            
             print("\n📄 Answer:\n")
             print(answer)
+
+            # display sources
+            print("\nSources:")
+            sources = [node.metadata for node in top_nodes]
+            for src in sources:
+                print(f"- {src['file_name']} (Page: {src['page_number']}, Chunk: {src['chunk_number']})")
+
             print("\n" + "=" * 40 + "\n")
         
         except Exception as e:
