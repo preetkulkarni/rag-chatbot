@@ -1,8 +1,13 @@
+from typing import List
+from llama_index.core.schema import TextNode
 import subprocess
 
-def build_prompt(user_query, context_chunks):
-    context_text = "\n\n".join([f"[Clause {i+1}]: {chunk}" for i, chunk in enumerate(context_chunks)])
+def build_prompt(user_query: str, context_nodes: List[TextNode]) -> str:
 
+    if not context_nodes:
+        return "I could not find any relevant information in the document to answer your question."
+
+    context_text = "\n\n---\n\n".join([node.get_content() for node in context_nodes])
     prompt = f"""
 You are a claims decision assistant helping users understand whether a given scenario is covered under an insurance policy.
 
@@ -37,10 +42,10 @@ Decision: <Approved / Not Approved / Insufficient Information> — <brief one-li
 
 
 
-def query_llm_with_context(user_query, context_chunks, model_name="llama3.1"):
+def query_llm_with_context(user_query, context_nodes, model_name="llama3.1"):
     # passes query with context chunks to LLM (llama3.1) and returns output 
 
-    prompt = build_prompt(user_query, context_chunks)
+    prompt = build_prompt(user_query, context_nodes)
 
     try:
         result = subprocess.run(

@@ -135,6 +135,6 @@ def extract_and_clean_pdf(pdf_path = config.PDF_PATH) -> str:
     # join all cleaned pages into single text block
     full_text = "\n\n".join(final_cleaned_pages)
 
-    print("Processing complete.\n")
+    print("✅ Processing complete.\n")
     return full_text
 

@@ -1,8 +1,8 @@
-1. better cleaning of text
+1. better cleaning of text  // COMPLETED
     - removal of stop words (necessary?)
     - removal of redundant info (header / footer on every page)
 
-2. better chunking
+2. better chunking // COMPLETED
 
 3. better pdf reading (?)
 

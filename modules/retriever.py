@@ -1,20 +1,28 @@
+import faiss
 import numpy as np
-from modules.embedder import embed_model
-from modules.persistence import load_data # Updated import
-from modules import config
+from typing import List
+from llama_index.core.schema import TextNode
+from . import config
+from .persistence import load_data
+from .embedder import model
 
-def retrieve_top_k_chunks(query, k=config.TOP_K):
-    # returns top K relevant chunks
+def retrieve_top_k_chunks(query: str) -> List[TextNode]:
+    """
+    Retrieves the top-k most relevant TextNode objects for a given query.
+    """
+    print(f"\n🔍 Retrieving context for query...\n")
     
-    index = load_data("faiss.index", serializer='faiss')
-    chunks = load_data("chunks.pkl", serializer='pickle')
-    
-    if index is None or chunks is None:
-        print("⚠️ Cache is missing or corrupted. Please use the 'rebuild' command.")
+    try:
+        index = load_data("faiss.index", serializer='faiss')
+        nodes = load_data("chunks.pkl", serializer='pickle')
+    except FileNotFoundError:
+        print("❌ Error: Index or chunks file not found. Please build the index first.")
         return None
 
-    query_embedding = embed_model.encode([query])
-    distances, indices = index.search(np.array(query_embedding), k)
+    query_embedding = model.encode([query]).astype('float32')
+
+    distances, indices = index.search(query_embedding, config.TOP_K)
+
+    retrieved_nodes = [nodes[i] for i in indices[0]]
     
-    top_chunks = [chunks[i] for i in indices[0]]
-    return top_chunks
+    return retrieved_nodes

@@ -1,14 +1,29 @@
 from sentence_transformers import SentenceTransformer
-from modules import config
+import numpy as np
 import faiss
+from typing import List
+from llama_index.core.schema import TextNode
+from modules import config
 
-embed_model = SentenceTransformer(config.EMBED_MODEL)
+model = SentenceTransformer(config.EMBED_MODEL)
 
-def embed_chunks(chunks):
-    return embed_model.encode(chunks, show_progress_bar=True)
+def embed_chunks(nodes: List[TextNode]) -> np.ndarray:
+    if not nodes:
+        print("⚠️ Warning: No nodes to embed. Returning empty array.")
+        return np.array([])
+    
+    texts_to_embed = [node.get_content() for node in nodes]
+    print("\nGenerating embeddings...")
+    embeddings = model.encode(texts_to_embed, show_progress_bar=True)
+    print("✅ Embeddings generated successfully.\n")
+    return embeddings.astype('float32')
 
-def create_faiss_index(embeddings):
-    dim = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dim)
+def create_faiss_index(embeddings: np.ndarray) -> faiss.Index:
+
+    if embeddings.size == 0:
+        raise ValueError("Cannot create FAISS index from empty embeddings array.")
+    
+    dimension = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dimension)
     index.add(embeddings)
     return index
