@@ -15,6 +15,7 @@ def embed_chunks(nodes: List[TextNode]) -> np.ndarray:
     texts_to_embed = [node.get_content() for node in nodes]
     print("\nGenerating embeddings...")
     embeddings = model.encode(texts_to_embed, show_progress_bar=True)
+    faiss.normalize_L2(embeddings)
     print("✅ Embeddings generated successfully.\n")
     return embeddings.astype('float32')
 
@@ -24,6 +25,6 @@ def create_faiss_index(embeddings: np.ndarray) -> faiss.Index:
         raise ValueError("Cannot create FAISS index from empty embeddings array.")
     
     dimension = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dimension)
+    index = faiss.IndexFlatIP(dimension)
     index.add(embeddings)
     return index

@@ -7,9 +7,8 @@ from .persistence import load_data
 from .embedder import model
 
 def retrieve_top_k_chunks(query: str) -> List[TextNode]:
-    """
-    Retrieves the top-k most relevant TextNode objects for a given query.
-    """
+    # retrives top K most relevant chunks
+
     print(f"\n🔍 Retrieving context for query...\n")
     
     try:
@@ -20,7 +19,7 @@ def retrieve_top_k_chunks(query: str) -> List[TextNode]:
         return None
 
     query_embedding = model.encode([query]).astype('float32')
-
+    faiss.normalize_L2(query_embedding)
     distances, indices = index.search(query_embedding, config.TOP_K)
 
     retrieved_nodes = [nodes[i] for i in indices[0]]
