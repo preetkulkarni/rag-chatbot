@@ -8,5 +8,5 @@ RERANKER_MODEL = "BAAI/bge-reranker-large"
 TOP_K_INITIAL = 15
 TOP_K_FINAL = 3
 
-PDF_PATH = "input/sample_pdf_v2.pdf"
+# pdf path removed, provided dynamically by user
 CACHED_DIR = "cached_files"

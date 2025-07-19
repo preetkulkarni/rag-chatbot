@@ -9,14 +9,14 @@ from .embedder import model as embedding_model
 
 reranker_model = CrossEncoder(config.RERANKER_MODEL)
 
-def retrieve_top_k_chunks(query: str) -> List[TextNode]:
-    # retrives top K most relevant chunks
+def retrieve_top_k_chunks(query: str, cache_path: str) -> List[TextNode]:
+    # retrives top K most relevant chunks from cache path
 
     print(f"\n🔍 Retrieving context for query...\n")
     
     try:
-        index = load_data("faiss.index", serializer='faiss')
-        nodes = load_data("chunks.pkl", serializer='pickle')
+        index = load_data(cache_path, "faiss.index", serializer='faiss')
+        nodes = load_data(cache_path, "chunks.pkl", serializer='pickle')
     except FileNotFoundError:
         print("❌ Error: Index or chunks file not found. Please build the index first.")
         return None

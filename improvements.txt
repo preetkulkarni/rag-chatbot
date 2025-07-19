@@ -4,27 +4,29 @@
 
 2. better chunking // COMPLETED
 
-3. better pdf reading (?)
+3. better pdf reading (COMPLETED)
 
 4. different types of text splitter in llama index (which one is better?)
-    llama-index-core/llama_index/core/node_parser/text/
+    llama-index-core/llama_index/core/node_parser/text/ (COMPLETED)
 
-5. rolling custom chunker (nltk, sentence aware)
+5. rolling custom chunker (nltk, sentence aware) (COMPLETED)
 
-6. better embeddings / transformers (?)
+6. better embeddings / transformers (?) (COMPLETED)
+ 
+7. better ways to calculate similarity rather than L2 (euclidean distance) (?) (COMPLETED)
 
-7. better ways to calculate similarity rather than L2 (euclidean distance) (?)
+8. better error handling (COMPLETED ?)
 
-8. better error handling
-
-9. better prompts
+9. better prompts (COMPLETED ?)
 
 10. UI additions
 
 11. better organization for .pkl and .index (COMPLETED)
 
-12. option for user to upload files
+12. option for user to upload files (COMPLETED)
 
 13. option to use multiple files for output
 
 14. metadata for justification
+
+15. ask for additional context if answer is "information not sufficient"

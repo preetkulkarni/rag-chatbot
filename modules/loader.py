@@ -130,7 +130,7 @@ def clean_text_pipeline(text: str) -> str:
     text = remove_redundant_newlines(text)
     return text
 
-def extract_and_clean_pdf(pdf_path: str = config.PDF_PATH) -> Dict[str, Any]:
+def extract_and_clean_pdf(pdf_path) -> Dict[str, Any]:
     print(f"\nStarting processing for: {pdf_path}")
     
     try:
