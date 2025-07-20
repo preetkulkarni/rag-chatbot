@@ -1,6 +1,1 @@
-
-# Simple RAG-Based Chatbot
-
-A local chatbot that can answer natural-language queries using Retrieval-Augmented Generation (RAG) and open-source models.
-
-
+AI-powered system that processes natural language queries to extract, analyze, and reason over large volumes of unstructured documents such as policies, contracts, and communications. The system leverages Large Language Models (LLMs) to interpret free-form human input and retrieve relevant decision-support information with traceable justifications.
