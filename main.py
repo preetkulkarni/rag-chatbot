@@ -8,105 +8,114 @@ from modules.llm_interface import query_llm_with_context
 from modules.persistence import save_data, cache_exists, get_cache_path
 
 def build_index(file_path: str):
-
-    print(f"🔄 Building index for {os.path.basename(file_path)}...")
-    
+    print(f"\n🔄 Building index for {os.path.basename(file_path)}...")
     cache_path = get_cache_path(file_path)
-    
     if os.path.exists(cache_path):
-        print(f"🗑️ Clearing old cache at {cache_path}...")
         shutil.rmtree(cache_path)
-
     processed_data = extract_and_clean_pdf(file_path)
     if not processed_data or not processed_data.get("pages"):
-        print("❌ Failed to extract text. Aborting index build.")
         return None
-
     nodes = get_text_nodes(processed_data, file_path)
     if not nodes:
-        print("❌ Failed to create text nodes. Aborting index build.")
         return None
-
     embeddings = embed_chunks(nodes)
     index = create_faiss_index(embeddings)
-    
     save_data(cache_path, "faiss.index", index, serializer='faiss')
     save_data(cache_path, "chunks.pkl", nodes, serializer='pickle')
-
     print(f"✅ Index for {os.path.basename(file_path)} built and saved.\n")
     return cache_path
 
 def chat_session(file_path: str, cache_path: str):
-    # chat session for a specific doc
-
     print(f"\n--- Chatting with: {os.path.basename(file_path)} ---")
-    print("> type 'exit' to quit, 'rebuild' to re-index this file, or 'back' to choose another file.\n")
+    print("> Type 'exit' to quit, 'rebuild' to re-index, or 'back' to choose another file.\n")
+
+    original_query = None
     
     while True:
-        user_query = input("Ask a question: ").strip()
+        # new conversation
+        if not original_query:
+            user_input = input("Ask a question: ").strip()
+            if not user_input:
+                continue
+            original_query = user_input
+        else:
+            pass
 
-        if user_query.lower() == "exit":
-            print("Goodbye!")
-            raise SystemExit() # might be problematic
+        if original_query.lower() in ["exit", "back", "rebuild"]:
+            command = original_query.lower()
+            original_query = None # Reset for the next loop
+            if command == "exit": raise SystemExit("Goodbye!")
+            if command == "back":
+                print("\n--- Returning to file selection menu ---")
+                break
+            if command == "rebuild":
+                build_index(file_path)
+                continue
         
-        if user_query.lower() == "back":
-            print("\n--- Returning to file selection menu ---")
-            break
-
-        if user_query.lower() == "rebuild":
-            build_index(file_path)
-            continue
-
+        query_to_send = original_query
+        
         try:
-            top_nodes = retrieve_top_k_chunks(user_query, cache_path)
+            top_nodes = retrieve_top_k_chunks(query_to_send, cache_path)
             if not top_nodes:
-                print("Could not retrieve relevant context. Please try another question or 'rebuild'.")
+                print("Could not retrieve relevant context. Please try another question.")
+                original_query = None # Reset for next question
                 continue
 
-            answer = query_llm_with_context(user_query, top_nodes)
+            llm_response = query_llm_with_context(query_to_send, top_nodes)
             
             print("\n📄 Answer:\n")
-            print(answer)
+            print(llm_response.get("answer"))
 
             print("\nSources:")
-            sources = [node.metadata for node in top_nodes]
-            for src in sources:
-                print(f"- {src['file_name']} (Page: {src['page_number']}, Chunk: {src['chunk_number']})")
-
+            for node in top_nodes:
+                metadata = node.metadata
+                print(f"- {metadata['file_name']} (Page: {metadata['page_number']}, Chunk: {metadata['chunk_number']})")
             print("\n" + "=" * 50 + "\n")
-        
+
+            if llm_response.get("status") == "insufficient":
+                print("The chatbot needs more information to provide a final answer:")
+                for q in llm_response.get("questions", []):
+                    print(f"- {q}")
+                
+                additional_info = input("\nPlease provide the requested details (or type 'skip' to ask a new question): ").strip()
+
+                if additional_info.lower() == 'skip':
+                    original_query = None # Reset to ask a new question
+                    print("\n" + "="*50 + "\n")
+                    continue
+                
+                # new query for next iteration
+                original_query = f"{original_query} [User has provided new information: {additional_info}]"
+                print("\n--- Thank you. Re-evaluating with new information... ---")
+            else:
+                original_query = None
+
         except Exception as e:
             print(f"❌ An error occurred: {e}")
+            original_query = None 
 
 def main():
-    print("\n=== Dynamic RAG Chatbot (v2.3) ===")
-    
+    print("\n=== Dynamic RAG Chatbot (v3.3) ===")
     while True:
         file_path_input = input("Enter the path to a PDF file (or type 'exit' to quit): ").strip()
-
         if file_path_input.lower() == 'exit':
             print("Goodbye!")
             break
         if not os.path.exists(file_path_input) or not file_path_input.lower().endswith('.pdf'):
             print("❌ Invalid path. Please provide a valid path to a PDF file.")
             continue
-        
         cache_path = get_cache_path(file_path_input)
-
         if not cache_exists(cache_path, ["faiss.index", "chunks.pkl"]):
             print(f"File '{os.path.basename(file_path_input)}' has not been indexed yet.")
             new_cache_path = build_index(file_path_input)
             if not new_cache_path:
-                print(f"❌ Cache build failed. Exiting to main menu...")
                 continue
             cache_path = new_cache_path
         else:
             print(f"✅ Found existing index for '{os.path.basename(file_path_input)}'.")
-
-        # start a chat session
         try:
             chat_session(file_path_input, cache_path)
-        except SystemExit as e: # catch the exit command
+        except SystemExit as e:
             print(e)
             break
 
