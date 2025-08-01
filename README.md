@@ -7,7 +7,7 @@ A sophisticated RAG chatbot that acts as an intelligent claims assistant, provid
 
 ## Description
 
-This project leverages a state-of-the-art Retrieval-Augmented Generation (RAG) pipeline to analyze complex insurance policies. Upload a policy, ask a question about a claim scenario, and receive a confident, verifiable verdict—Approved, Not Approved, or Insufficient Information—based strictly on the text within the document.
+This project leverages a Retrieval-Augmented Generation (RAG) pipeline to analyze complex insurance policies. Upload a policy, ask a question about a claim scenario, and receive a confident, verifiable verdict—Approved, Not Approved, or Insufficient Information—based strictly on the text within the document.
 
 
 
