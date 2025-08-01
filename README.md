@@ -43,6 +43,13 @@ This project leverages a Retrieval-Augmented Generation (RAG) pipeline to analyz
 
 - 🔍 **Verifiable Evidence Trail**: Every verdict is backed by sources, citing the exact page number from the policy document, ensuring complete transparency and trust.
 
+## Screenshots
+- Processing file and building index:
+    <img width="1548" height="762" alt="Screenshot 2025-08-01 124044" src="https://github.com/user-attachments/assets/b490de9a-4da9-4f7d-98d8-8c89d87e0f6c" />
+- Existing index:
+    <img width="1547" height="337" alt="Screenshot 2025-08-01 132512" src="https://github.com/user-attachments/assets/31f7811c-f91e-4ed8-a1a5-6857d46a9934" />
+- Asking questions:
+    <img width="1531" height="878" alt="Screenshot 2025-08-01 133517" src="https://github.com/user-attachments/assets/e0a3eccb-ba81-4ece-b3a7-19eaf53e0768" />
 
 ## Tech Stack
 
